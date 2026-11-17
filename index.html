@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PowerShell Quiz</title>
+<title>PowerShell di windows - Quiz interattivo a risposta chiusa</title>
 <style>
 :root{--green:#04AA6D;--green-d:#059862;--dark:#282A35;--bg:#f1f1f1;--card:#fff;--text:#000;--muted:#555;
 --ok-bg:#ddffdd;--ok:#04AA6D;--ko-bg:#ffdddd;--ko:#f44336;--code-bg:#E7E9EB;--line:#d4d4d4}
@@ -47,7 +47,7 @@ pre{background:var(--code-bg);border-left:4px solid var(--green);padding:12px 14
 <main>
 <section id="start" class="card">
   <h2 id="title"></h2>
-  <p>Domande in ordine casuale, risposte mescolate, spiegazione dopo ogni risposta.</p>
+  <p>Domande in ordine casuale, risposte in ordine casuale, spiegazione dopo ogni risposta.</p>
   <div class="row">
     <div><label for="lvl">Livello</label>
       <select id="lvl"><option value="0">Tutti</option></select></div>
@@ -72,7 +72,7 @@ pre{background:var(--code-bg);border-left:4px solid var(--green);padding:12px 14
   <div class="score" id="final"></div>
   <p id="msg"></p>
   <div class="row"><button class="btn" id="again">Ricomincia</button>
-  <button class="btn alt" id="wrong">Rifai solo gli errori</button></div>
+  <button class="btn alt" id="wrong">Rifai solo le domande sbagliate</button></div>
   <div id="review"></div>
 </section>
 </main>
