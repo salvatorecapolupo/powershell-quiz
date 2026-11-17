@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PowerShell Quiz</title>
+<style>
+:root{--green:#04AA6D;--green-d:#059862;--dark:#282A35;--bg:#f1f1f1;--card:#fff;--text:#000;--muted:#555;
+--ok-bg:#ddffdd;--ok:#04AA6D;--ko-bg:#ffdddd;--ko:#f44336;--code-bg:#E7E9EB;--line:#d4d4d4}
+@media(prefers-color-scheme:dark){:root{--bg:#1e1f26;--card:#282A35;--text:#f1f1f1;--muted:#b6b8c0;--ok-bg:#16402f;--ko-bg:#4a2326;--code-bg:#1b1c22;--line:#454759}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Verdana,"Segoe UI",sans-serif}
+header{background:var(--dark);color:#fff;padding:14px 20px;border-bottom:4px solid var(--green)}
+header h1{margin:0;font-size:1.25rem;font-weight:600}
+header h1 span{color:var(--green)}
+main{max-width:760px;margin:24px auto;padding:0 14px}
+.card{background:var(--card);border:1px solid var(--line);padding:24px;margin-bottom:16px}
+h2{margin:0 0 12px;font-size:1.4rem}
+.btn{background:var(--green);color:#fff;border:0;padding:10px 22px;font:inherit;cursor:pointer;border-radius:4px}
+.btn:hover{background:var(--green-d)}
+.btn.alt{background:var(--dark)}.btn.alt:hover{background:#3b3e4d}
+.btn:focus-visible,.opt:focus-visible,select:focus-visible{outline:3px solid #ffc107;outline-offset:2px}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:end;margin:16px 0}
+label{display:block;font-size:.9rem;color:var(--muted);margin-bottom:4px}
+select{font:inherit;padding:8px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:4px}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%;background:var(--green);width:0;transition:width .25s}
+.meta{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-bottom:16px;gap:8px;flex-wrap:wrap}
+.q{font-size:1.15rem;margin:0 0 14px}
+pre{background:var(--code-bg);border-left:4px solid var(--green);padding:12px 14px;margin:0 0 16px;overflow-x:auto;font:.95rem/1.45 Consolas,"Courier New",monospace;white-space:pre}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:var(--card);border:2px solid var(--line);padding:10px 14px;margin-bottom:8px;cursor:pointer;border-radius:4px}
+.opt:hover:not(:disabled){border-color:var(--green)}
+.opt:disabled{cursor:default}
+.opt.ok{background:var(--ok-bg);border-color:var(--ok)}
+.opt.ko{background:var(--ko-bg);border-color:var(--ko)}
+.opt code{font-family:Consolas,"Courier New",monospace;background:var(--code-bg);padding:1px 5px;border-radius:3px}
+.expl{margin-top:14px;padding:12px 14px;background:var(--code-bg);border-left:4px solid var(--green)}
+.expl.ko{border-color:var(--ko)}
+.score{font-size:2.4rem;margin:6px 0}
+.rev{border-top:1px solid var(--line);padding:10px 0;font-size:.95rem}
+.rev b.ok{color:var(--ok)}.rev b.ko{color:var(--ko)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<header><h1><span>PowerShell</span> Quiz</h1></header>
+<main>
+<section id="start" class="card">
+  <h2 id="title"></h2>
+  <p>Domande in ordine casuale, risposte mescolate, spiegazione dopo ogni risposta.</p>
+  <div class="row">
+    <div><label for="lvl">Livello</label>
+      <select id="lvl"><option value="0">Tutti</option></select></div>
+    <div><label for="num">Numero di domande</label>
+      <select id="num"></select></div>
+    <button class="btn" id="go">Inizia il quiz</button>
+  </div>
+</section>
+
+<section id="play" class="card hide">
+  <div class="bar"><i id="prog"></i></div>
+  <div class="meta"><span id="cnt"></span><span id="tag"></span><span id="sc"></span></div>
+  <p class="q" id="q"></p>
+  <pre id="code" class="hide"></pre>
+  <div id="opts"></div>
+  <div id="expl" class="expl hide"></div>
+  <div class="row"><button class="btn hide" id="next"></button></div>
+</section>
+
+<section id="end" class="card hide">
+  <h2>Risultato</h2>
+  <div class="score" id="final"></div>
+  <p id="msg"></p>
+  <div class="row"><button class="btn" id="again">Ricomincia</button>
+  <button class="btn alt" id="wrong">Rifai solo gli errori</button></div>
+  <div id="review"></div>
+</section>
+</main>
+
+<script id="data" type="application/json">{"version": 1, "title": "PowerShell – Quiz a difficoltà crescente", "questions": [{"id": "l1-01", "level": 1, "topic": "Cartella corrente", "prompt": "Quale comando stampa il percorso della cartella corrente?", "options": ["pwd", "ls", "cd", "Get-Help"], "answer": 0, "explain": "pwd è l'alias di Get-Location: stampa la working directory. La variabile $PWD contiene lo stesso valore."}, {"id": "l1-02", "level": 1, "topic": "Percorsi", "prompt": "In un percorso come ..\\Lab, che cosa indica il simbolo .. ?", "options": ["La cartella corrente", "La cartella genitore", "La cartella personale dell'utente", "La radice del disco"], "answer": 1, "explain": ". è la cartella corrente, .. è la cartella genitore, ~ è la cartella personale (C:\\Users\\nome)."}, {"id": "l1-03", "level": 1, "topic": "Alias", "prompt": "Qual è la forma lunga (cmdlet) dell'alias ls?", "options": ["Get-Location", "Get-Content", "Get-ChildItem", "Set-Location"], "answer": 2, "explain": "ls e dir sono alias di Get-ChildItem, che elenca il contenuto di una cartella."}, {"id": "l1-04", "level": 1, "topic": "Percorsi", "prompt": "Che cosa fa questo comando?", "code": "cd ~\\Desktop\\Lab", "options": ["Crea la cartella Lab sul Desktop", "Entra nella cartella Lab del Desktop", "Elenca il contenuto di Lab", "Copia Lab sul Desktop"], "answer": 1, "explain": "~ (equivalente a $HOME) è la cartella personale; cd è alias di Set-Location e cambia la cartella corrente."}, {"id": "l1-05", "level": 1, "topic": "Teoria", "prompt": "In PowerShell, che cosa si scambiano i comandi lungo la pipeline?", "options": ["Righe di testo", "Oggetti con proprietà", "Solo numeri", "File temporanei"], "answer": 1, "explain": "È la differenza principale con cmd.exe: ogni risultato è un oggetto con proprietà (Name, Length, LastWriteTime...) che si possono filtrare, ordinare e riusare."}, {"id": "l1-06", "level": 1, "topic": "Creare cartelle", "prompt": "Che cosa fa il comando mkdir Lab ?", "options": ["Crea la cartella Lab nel percorso corrente", "Entra nella cartella Lab", "Rinomina Lab", "Elimina Lab"], "answer": 0, "explain": "mkdir è alias di New-Item -ItemType Directory: crea una cartella."}, {"id": "l1-07", "level": 1, "topic": "Maiuscole", "prompt": "Windows e PowerShell distinguono maiuscole e minuscole nei nomi dei file?", "options": ["Sì, sempre", "No: A.TXT e a.txt sono lo stesso file", "Solo in PowerShell 7", "Solo nelle cartelle di sistema"], "answer": 1, "explain": "Windows non distingue maiuscole e minuscole nei nomi, e PowerShell nemmeno nei comandi."}, {"id": "l1-08", "level": 1, "topic": "Alias", "prompt": "A che cosa serve il comando Get-Alias ls ?", "options": ["A eseguire ls con privilegi elevati", "A scoprire a quale cmdlet corrisponde l'alias ls", "A eliminare l'alias ls", "A elencare i file nascosti"], "answer": 1, "explain": "Get-Alias mostra la corrispondenza alias → cmdlet, utile per capire cosa si sta davvero eseguendo."}, {"id": "l1-09", "level": 1, "topic": "Percorsi", "prompt": "Quale di questi è un percorso assoluto?", "options": ["sotto\\a.txt", ".\\a.txt", "C:\\Users\\Anna\\a.txt", "..\\a.txt"], "answer": 2, "explain": "Un percorso assoluto parte dalla radice del disco; gli altri sono relativi alla cartella corrente."}, {"id": "l1-10", "level": 1, "topic": "Prompt", "prompt": "Il prompt PS C:\\Users\\nome> che cosa indica?", "options": ["La cartella corrente (working directory)", "Che si è amministratori", "La versione di PowerShell", "Il disco di sistema"], "answer": 0, "explain": "Il prompt mostra la cartella corrente: tutti i percorsi relativi partono da lì."}, {"id": "l2-01", "level": 2, "topic": "Redirezione", "prompt": "Che cosa fa questa riga?", "code": "\"ciao\" > a.txt", "options": ["Stampa ciao a video", "Crea (o sovrascrive) a.txt con il contenuto ciao", "Aggiunge ciao in coda ad a.txt", "Legge a.txt e stampa ciao"], "answer": 1, "explain": "> è la redirezione su file: crea il file o lo sovrascrive. Per aggiungere senza cancellare si usa >>."}, {"id": "l2-02", "level": 2, "topic": "Redirezione", "prompt": "Quale operatore aggiunge testo in coda a un file senza cancellarne il contenuto?", "options": [">", "<", "|", ">>"], "answer": 3, "explain": ">> aggiunge in coda (come Add-Content); > sovrascrive."}, {"id": "l2-03", "level": 2, "topic": "Codifica", "prompt": "Con la redirezione >, in Windows PowerShell 5.1 il file viene scritto in…", "options": ["UTF-8", "UTF-16", "ASCII puro", "Dipende dalla console"], "answer": 1, "explain": "In Windows PowerShell 5.1 > produce UTF-16; in PowerShell 7 produce UTF-8. Con Set-Content la codifica si sceglie con -Encoding."}, {"id": "l2-04", "level": 2, "topic": "Cicli", "prompt": "Che cosa crea questo comando?", "code": "1..5 | % { ni \"f$_.txt\" }", "options": ["Un solo file f5.txt", "Cinque file vuoti f1.txt … f5.txt", "Cinque file f1.txt … f5.txt contenenti il numero", "Cinque cartelle f1 … f5"], "answer": 1, "explain": "1..5 genera i numeri, % (ForEach-Object) ripete il blocco e ni (New-Item) crea un file vuoto per ogni numero."}, {"id": "l2-05", "level": 2, "topic": "Stringhe", "prompt": "Che cosa produce l'espressione \"x\" * 3 ?", "options": ["Il testo x*3", "Il testo xxx", "Un errore di sintassi", "Tre righe contenenti x"], "answer": 1, "explain": "L'operatore * su una stringa la ripete: \"x\" * 3 vale \"xxx\"."}, {"id": "l2-06", "level": 2, "topic": "Virgolette", "prompt": "Qual è la differenza tra \"...\" e '...' in PowerShell?", "options": ["Nessuna differenza", "Le virgolette doppie espandono le variabili, gli apici no", "Gli apici espandono le variabili, le doppie no", "Le doppie si usano solo nei percorsi"], "answer": 1, "explain": "Le doppie espandono $variabili (\"f$y\" diventa f5), gli apici producono testo letterale."}, {"id": "l2-07", "level": 2, "topic": "Escape", "prompt": "Che cosa stampa questa riga?", "code": "\"costa 5`$\"", "options": ["costa 5", "costa 5$", "costa 50", "Un errore: il dollaro va sempre espanso"], "answer": 1, "explain": "Il backtick toglie il significato speciale al carattere che segue: `$ stampa un dollaro letterale."}, {"id": "l2-08", "level": 2, "topic": "Alias", "prompt": "A quale cmdlet corrisponde l'alias ni?", "options": ["New-Item", "New-Inbox", "Get-ChildItem", "Rename-Item"], "answer": 0, "explain": "ni = New-Item: crea file, cartelle o altri elementi."}, {"id": "l2-09", "level": 2, "topic": "Alias", "prompt": "A quale cmdlet corrisponde l'alias % ?", "options": ["ForEach-Object", "Where-Object", "Select-Object", "Sort-Object"], "answer": 0, "explain": "% è ForEach-Object (ripete un blocco per ogni elemento), mentre ? è Where-Object (filtra)."}, {"id": "l2-10", "level": 2, "topic": "Creazione file", "prompt": "Che cosa crea il comando ni \"a1.txt\" ?", "options": ["Una cartella di nome a1.txt", "Un file vuoto a1.txt", "Un file a1.txt con dentro la parola ni", "Una copia di a1.txt"], "answer": 1, "explain": "Senza -ItemType Directory, New-Item crea un file."}, {"id": "l3-01", "level": 3, "topic": "Pipeline", "prompt": "Che cosa fa l'operatore | in PowerShell?", "options": ["Esegue due comandi in parallelo", "Passa l'output del primo comando come input del successivo, oggetto per oggetto", "Divide due numeri", "Redirige l'output su file"], "answer": 1, "explain": "La pipeline lavora su oggetti, non su testo: è ciò che permette di ordinare per Length come numero."}, {"id": "l3-02", "level": 3, "topic": "Ordinamento", "prompt": "Che cosa mostra questo comando?", "code": "ls n*.txt |\nsort Length -desc |\nselect -first 3 Name,Length", "options": ["I 3 file più piccoli, con tutte le proprietà", "Nome e dimensione dei 3 file più grandi", "I primi 3 file in ordine alfabetico", "La somma delle dimensioni dei 3 file più grandi"], "answer": 1, "explain": "sort Length -desc ordina dal più grande, select -first 3 tiene i primi tre e mostra solo Name e Length."}, {"id": "l3-03", "level": 3, "topic": "Confronti", "prompt": "Quale espressione filtra correttamente i file più grandi di 1 MB?", "options": ["? Length > 1MB", "? Length -gt 1MB", "? Length -eq 1MB", "? Length -lt 1MB"], "answer": 1, "explain": "In PowerShell > è la redirezione, non il confronto: ? Length > 1MB creerebbe un file chiamato 1MB. I confronti usano -gt, -lt, -ge, -le, -eq, -ne."}, {"id": "l3-04", "level": 3, "topic": "Filtri", "prompt": "Quale alias corrisponde a Where-Object?", "options": ["%", "?", "$", "@"], "answer": 1, "explain": "? = Where-Object (filtra), % = ForEach-Object (ripete), $ introduce le variabili, @ costruisce array e tabelle."}, {"id": "l3-05", "level": 3, "topic": "Misure", "prompt": "Che cosa restituisce ls -file | measure Length -sum ?", "options": ["Un elenco di file con la loro dimensione", "Un solo oggetto con le proprietà Count e Sum", "Una cartella chiamata Sum", "La dimensione totale del disco"], "answer": 1, "explain": "Measure-Object produce un unico oggetto riassuntivo: Count (quanti file) e Sum (somma delle Length, in byte)."}, {"id": "l3-06", "level": 3, "topic": "Raggruppamento", "prompt": "Che cosa produce il comando group Extension ?", "options": ["Un file per ogni estensione", "Un oggetto per ogni estensione, con Count e Group", "Solo il conteggio totale dei file", "Una cartella per ogni estensione"], "answer": 1, "explain": "Group-Object crea un gruppo per ogni valore distinto della proprietà: Name è l'estensione, Count il numero di file."}, {"id": "l3-07", "level": 3, "topic": "Ricorsione", "prompt": "Che cosa aggiunge il parametro -r (o -Recurse) a ls?", "options": ["Ordina al contrario", "Elenca solo i file in sola lettura", "Entra anche in tutte le sottocartelle", "Rinomina i file trovati"], "answer": 2, "explain": "-r è l'abbreviazione di -Recurse: la ricerca scende in profondità."}, {"id": "l3-08", "level": 3, "topic": "Unità di misura", "prompt": "In PowerShell, a quanto equivale 1MB?", "options": ["1000 byte", "1024 byte", "1 000 000 byte", "1 048 576 byte"], "answer": 3, "explain": "1KB, 1MB, 1GB sono numeri validi: 1MB = 1 048 576 byte. Per questo si divide per 1MB per convertire in megabyte."}, {"id": "l3-09", "level": 3, "topic": "Proprietà", "prompt": "Perché le cartelle finiscono in fondo quando si ordina per Length?", "options": ["Perché hanno Length = 0", "Perché non hanno la proprietà Length", "Perché ls esclude sempre le cartelle", "Perché Length è una stringa"], "answer": 1, "explain": "Le cartelle non hanno Length: per escluderle del tutto si usa ls -file."}, {"id": "l3-10", "level": 3, "topic": "Cicli", "prompt": "Quante x contiene n3.txt creato da questo comando?", "code": "1..6 | % { \"x\" * ($_ * 5) > \"n$_.txt\" }", "options": ["3", "5", "15", "30"], "answer": 2, "explain": "Con $_ = 3 il file contiene 3 × 5 = 15 caratteri x (n6 ne contiene 30, n5 25, e così via)."}, {"id": "l4-01", "level": 4, "topic": "Sicurezza", "prompt": "A che cosa serve il parametro -WhatIf?", "options": ["A eseguire il comando in background", "A mostrare che cosa farebbe il comando senza eseguirlo davvero", "A ignorare gli errori", "A chiedere conferma all'utente"], "answer": 1, "explain": "È il modo giusto di provare un comando distruttivo (mv, rm) prima di eseguirlo per davvero."}, {"id": "l4-02", "level": 4, "topic": "Errori", "prompt": "Che cosa significa -ea 0 (cioè -ErrorAction SilentlyContinue)?", "options": ["Interrompe il comando al primo errore", "Nasconde gli errori non critici, per esempio gli accessi negati", "Ripete il comando zero volte", "Scrive gli errori su file"], "answer": 1, "explain": "Serve a non riempire lo schermo di errori quando si esplorano cartelle protette come $env:TEMP."}, {"id": "l4-03", "level": 4, "topic": "Espansione", "prompt": "Perché dentro le virgolette doppie si scrive \"$($_.Name)\" e non \"$_.Name\"?", "code": "\"$($_.Name)\"", "options": ["Per convenzione stilistica", "Perché dentro le virgolette si espande solo il nome della variabile, non le sue proprietà: $( ) valuta l'espressione", "Perché $_ non esiste dentro le stringhe", "Perché $( ) converte in maiuscolo"], "answer": 1, "explain": "Senza $( ) verrebbe stampato il valore di $_ seguito dal testo letterale .Name."}, {"id": "l4-04", "level": 4, "topic": "Escape", "prompt": "Che cosa fa il backtick a fine riga?", "options": ["Commenta la riga", "Continua il comando sulla riga successiva", "Termina il comando", "Cancella l'output"], "answer": 1, "explain": "È il carattere di continuazione. Dopo il backtick finale non deve esserci alcuno spazio, altrimenti non funziona."}, {"id": "l4-05", "level": 4, "topic": "Proprietà", "prompt": "Quale proprietà contiene data e ora dell'ultima modifica di un file?", "options": ["CreationTime", "LastWriteTime", "Length", "Extension"], "answer": 1, "explain": "LastWriteTime.Year dà l'anno, usato per esempio per smistare i file in sottocartelle per anno."}, {"id": "l4-06", "level": 4, "topic": "Alias", "prompt": "mv è l'alias di quale cmdlet?", "options": ["Move-Item", "Remove-Item", "New-Item", "Measure-Object"], "answer": 0, "explain": "mv = Move-Item; ren = Rename-Item; rm = Remove-Item."}, {"id": "l4-07", "level": 4, "topic": "Rinomina", "prompt": "Che cosa fa questo comando?", "code": "ren b.txt c.txt", "options": ["Sposta b.txt nella cartella c.txt", "Rinomina b.txt in c.txt: il secondo argomento è solo il nome, non un percorso", "Copia b.txt in c.txt", "Confronta i due file"], "answer": 1, "explain": "Rename-Item vuole solo il nuovo nome. Per spostare in un'altra cartella si usa mv (Move-Item)."}, {"id": "l4-08", "level": 4, "topic": "Formato", "prompt": "Che cosa fa l'operatore -f in questa riga?", "code": "\"{0:N2} MB\" -f ($tot / 1MB)", "options": ["Forza l'operazione ignorando gli errori", "Inserisce il valore nel modello di testo, con 2 decimali", "Filtra il risultato", "Salva il risultato su file"], "answer": 1, "explain": "Tra due valori -f è l'operatore di formato; quando segue il nome di un cmdlet è invece il parametro -Force."}, {"id": "l4-09", "level": 4, "topic": "Parentesi", "prompt": "Perché in (ls *.txt) | % { ... } la lista dei file è racchiusa tra parentesi?", "options": ["Per ordinarli alfabeticamente", "Per raccogliere tutti i file prima di iniziare a spostarli, evitando di modificare la lista mentre la si percorre", "Per stampare la lista a video", "Per nascondere gli errori"], "answer": 1, "explain": "Le parentesi eseguono prima il comando interno e ne congelano il risultato: è la tecnica usata nello smistamento per anno."}, {"id": "l4-10", "level": 4, "topic": "Versioni", "prompt": "Come si scopre quale versione di PowerShell si sta usando?", "options": ["Get-Version", "$PSVersionTable.PSVersion", "ver", "version -ps"], "answer": 1, "explain": "$PSVersionTable.PSVersion distingue Windows PowerShell 5.1 da PowerShell 7 (utile perché cambia la codifica di >)."}, {"id": "l5-01", "level": 5, "topic": "Trappole", "prompt": "Perché ? Length > 1MB è sbagliato?", "options": ["Perché Where-Object non accetta Length", "Perché > è la redirezione: crea un file chiamato 1MB invece di confrontare", "Perché 1MB non è un numero valido", "Perché servirebbe -eq"], "answer": 1, "explain": "I confronti si scrivono con parole: -gt, -lt, -ge, -le, -eq, -ne, -like."}, {"id": "l5-02", "level": 5, "topic": "Parametri", "prompt": "Perché abbreviare -Filter in -fi dà errore?", "options": ["Perchè i parametri non si possono abbreviare", "Perché -fi è ambiguo: coincide con l'inizio anche di -File", "Perché -Filter richiede un valore numerico", "Perché -fi è un alias riservato"], "answer": 1, "explain": "Un'abbreviazione è valida solo se resta non ambigua; altrimenti PowerShell segnala il parametro come ambiguo."}, {"id": "l5-03", "level": 5, "topic": "Teoria", "prompt": "La execution policy di PowerShell…", "options": ["Blocca anche i comandi digitati a mano", "Riguarda solo l'esecuzione dei file .ps1, non i comandi digitati", "Va sempre modificata prima di usare la shell", "Serve a cifrare i file"], "answer": 1, "explain": "Per gli esercizi digitati al prompt non serve toccarla."}, {"id": "l5-04", "level": 5, "topic": "Copia e incolla", "prompt": "Un comando copiato da un PDF non funziona: qual è la causa più probabile?", "options": ["Il PDF è protetto da password", "Il PDF ha sostituito virgolette e trattini con caratteri tipografici che PowerShell non riconosce", "PowerShell non accetta comandi lunghi", "Manca il permesso di amministratore"], "answer": 1, "explain": "I programmi di videoscrittura usano virgolette ricurve e trattini lunghi: vanno riscritti a mano o passati da un editor di solo testo."}, {"id": "l5-05", "level": 5, "topic": "Aiuto", "prompt": "Quale comando mostra esempi d'uso di Move-Item?", "options": ["Get-Help Move-Item -Examples", "Help -List Move-Item", "Move-Item -WhatIf", "Get-Alias Move-Item"], "answer": 0, "explain": "Get-Help con -Examples è il modo più rapido per capire la sintassi di un cmdlet."}, {"id": "l5-06", "level": 5, "topic": "Percorsi", "prompt": "Il Desktop è sincronizzato con OneDrive e ~\\Desktop non esiste. Come ottieni il percorso reale?", "options": ["[Environment]::GetFolderPath('Desktop')", "Get-Path Desktop", "$env:DESKTOP", "cd Desktop -Force"], "answer": 0, "explain": "Con OneDrive il Desktop può essere spostato: GetFolderPath('Desktop') restituisce il percorso effettivo."}, {"id": "l5-07", "level": 5, "topic": "Pipeline", "prompt": "Dentro un blocco % { ... }, che cosa rappresenta $_ ?", "options": ["Il risultato del comando precedente come testo", "L'elemento corrente della pipeline", "Una variabile globale vuota", "Il percorso della cartella corrente"], "answer": 1, "explain": "In \"f$_.txt\" $_ è il numero corrente: per questo nascono f1.txt, f2.txt, e così via."}, {"id": "l5-08", "level": 5, "topic": "Parametri", "prompt": "In ni $y -it directory -f, che cosa significa -it?", "options": ["-ItemType: specifica il tipo di elemento da creare", "-Interactive: chiede conferma", "-ItemTarget: indica la destinazione", "-IncludeTree: crea una struttura"], "answer": 0, "explain": "-it = -ItemType, -f = -Force (nessun errore se la cartella esiste già). In altri contesti -f è l'operatore di formato."}, {"id": "l5-09", "level": 5, "topic": "Sicurezza", "prompt": "Perché prima di rm -r su una cartella si prova con -WhatIf?", "options": ["Perché -WhatIf rende l'eliminazione reversibile", "Perché i comandi di eliminazione di PowerShell non usano il cestino: l'operazione è definitiva", "Perché altrimenti PowerShell chiede la password", "Perché -WhatIf comprime la cartella"], "answer": 1, "explain": "mv e rm non passano dal cestino: si lavora solo dentro la cartella Lab e si controlla sempre con -WhatIf."}, {"id": "l5-10", "level": 5, "topic": "Oggetti", "prompt": "Come si vedono tutte le proprietà di un oggetto restituito da ls?", "options": ["ls | Get-Member", "ls -Properties", "ls | Get-Help", "Get-Alias ls"], "answer": 0, "explain": "Get-Member elenca proprietà e metodi dell'oggetto: è il modo per scoprire, per esempio, che esiste Length."}]}</script>
+<script>
+const D=JSON.parse(document.getElementById('data').textContent);
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+// `testo` -> <code>
+const fmt=s=>esc(s).replace(/`([^`]+)`/g,'<code>$1</code>');
+let deck=[],i=0,score=0,locked=false,log=[];
+
+$('title').textContent=D.title;
+[...new Set(D.questions.map(q=>q.level))].sort().forEach(l=>{
+  const o=document.createElement('option');o.value=l;o.textContent='Livello '+l;$('lvl').appendChild(o)});
+function fillNum(){
+  const n=D.questions.filter(q=>$('lvl').value==0||q.level==$('lvl').value).length;
+  const set=[...new Set([5,10,20,n].filter(x=>x<=n))].sort((a,b)=>a-b);
+  $('num').innerHTML=set.map(x=>`<option value="${x}"${x==Math.min(10,n)?' selected':''}>${x===n?'Tutte ('+n+')':x}</option>`).join('');
+}
+$('lvl').onchange=fillNum;fillNum();
+
+function show(id){['start','play','end'].forEach(s=>$(s).classList.toggle('hide',s!==id))}
+function start(pool){
+  deck=pool;i=0;score=0;log=[];show('play');render();
+}
+$('go').onclick=()=>{
+  const l=+$('lvl').value,n=+$('num').value;
+  start(shuffle(D.questions.filter(q=>!l||q.level===l)).slice(0,n));
+};
+function render(){
+  locked=false;
+  const q=deck[i];
+  $('prog').style.width=(i/deck.length*100)+'%';
+  $('cnt').textContent=`Domanda ${i+1} di ${deck.length}`;
+  $('tag').textContent=`Livello ${q.level} · ${q.topic}`;
+  $('sc').textContent=`Punti: ${score}`;
+  $('q').innerHTML=fmt(q.prompt);
+  const c=$('code');
+  if(q.code){c.textContent=q.code;c.classList.remove('hide')}else c.classList.add('hide');
+  const opts=shuffle(q.options.map((t,k)=>({t,ok:k===q.answer})));
+  $('opts').innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');b.className='opt';b.innerHTML=fmt(o.t);
+    b.onclick=()=>answer(b,o,opts,q);$('opts').appendChild(b);
+  });
+  $('expl').classList.add('hide');$('next').classList.add('hide');
+}
+function answer(btn,o,opts,q){
+  if(locked)return;locked=true;
+  const bs=[...$('opts').children];
+  bs.forEach((b,k)=>{b.disabled=true;if(opts[k].ok)b.classList.add('ok')});
+  if(!o.ok)btn.classList.add('ko');else score++;
+  log.push({q,ok:o.ok,given:o.t});
+  $('sc').textContent=`Punti: ${score}`;
+  const e=$('expl');e.className='expl'+(o.ok?'':' ko');
+  e.innerHTML=`<b>${o.ok?'Corretto!':'Sbagliato.'}</b> ${fmt(q.explain)}`;
+  $('next').textContent=i+1<deck.length?'Avanti ❯':'Vedi il risultato';
+  $('next').classList.remove('hide');$('next').focus();
+}
+$('next').onclick=()=>{i++;i<deck.length?render():finish()};
+function finish(){
+  show('end');
+  const n=deck.length,p=Math.round(score/n*100);
+  $('final').textContent=`${score} / ${n} (${p}%)`;
+  $('msg').textContent=p>=90?'Eccellente!':p>=70?'Bene, ci sei quasi.':p>=50?'Sufficiente: ripassa gli errori.':'Da ripassare con calma.';
+  const errs=log.filter(x=>!x.ok);
+  $('wrong').classList.toggle('hide',!errs.length);
+  $('review').innerHTML=errs.length?'<h3>Da rivedere</h3>'+errs.map(x=>{
+    const r=x.q.options[x.q.answer];
+    return `<div class="rev"><div>${fmt(x.q.prompt)}</div><div><b class="ko">Tua:</b> ${fmt(x.given)}</div><div><b class="ok">Giusta:</b> ${fmt(r)}</div><div>${fmt(x.q.explain)}</div></div>`}).join(''):'';
+}
+$('again').onclick=()=>{show('start')};
+$('wrong').onclick=()=>start(shuffle(log.filter(x=>!x.ok).map(x=>x.q)));
+document.addEventListener('keydown',e=>{
+  if($('play').classList.contains('hide'))return;
+  if(e.key==='Enter'&&locked){$('next').click()}
+  const k=parseInt(e.key);if(!locked&&k>=1&&k<=4&&$('opts').children[k-1])$('opts').children[k-1].click();
+});
+show('start');
+</script>
+</body>
+</html>
