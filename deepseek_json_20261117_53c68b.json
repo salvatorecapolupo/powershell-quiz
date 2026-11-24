@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "title": "PowerShell – Quiz a difficoltà crescente",
+  "title": "PowerShell – Quiz a difficoltà crescente (esteso con varianti e domande di ragionamento)",
   "questions": [
     {
       "id": "l1-01",
@@ -123,7 +123,57 @@
       "answer": 0,
       "explain": "Il prompt mostra la cartella corrente: tutti i percorsi relativi partono da lì."
     },
-
+    {
+      "id": "l1-11",
+      "level": 1,
+      "topic": "Ricerca con wildcard",
+      "prompt": "In una cartella ci sono i file a.doc, b.docx, c.doc, d.txt. Che cosa restituisce il comando ls *.doc ?",
+      "options": [
+        "a.doc e c.doc",
+        "a.doc, b.docx e c.doc",
+        "Solo a.doc",
+        "Tutti i file perché .doc è contenuto in .docx"
+      ],
+      "answer": 0,
+      "explain": "*.doc corrisponde solo ai nomi che finiscono esattamente per .doc: b.docx ha estensione .docx e non viene incluso. d.txt è escluso."
+    },
+    {
+      "id": "l1-12",
+      "level": 1,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Quale comando elenca sia i file .doc sia i file .docx?",
+      "options": [
+        "ls *.doc",
+        "ls *.doc, *.docx",
+        "ls *.docx",
+        "ls *.doc*"
+      ],
+      "answer": 1,
+      "explain": "PowerShell accetta un array di pattern separati da virgola: ls *.doc, *.docx elenca entrambe le estensioni. *.doc* sarebbe troppo largo (includerebbe anche .docx e .docm, ma anche nomi come documento.txt se contengono doc)."
+    },
+    {
+      "id": "l1-13",
+      "level": 1,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Se esegui ls *.doc in una cartella che contiene solo b.docx e c.doc, quanti file vengono elencati?",
+      "options": ["Nessuno", "Uno (c.doc)", "Due (b.docx e c.doc)", "Tre"],
+      "answer": 1,
+      "explain": "*.doc corrisponde solo a c.doc; b.docx ha estensione .docx e non soddisfa il pattern."
+    },
+    {
+      "id": "l1-14",
+      "level": 1,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Che differenza c'è tra ls *.txt e ls -file *.txt ?",
+      "options": [
+        "Nessuna: sono identici",
+        "ls -file esclude le cartelle, ls *.txt include anche eventuali cartelle chiamate *.txt",
+        "ls *.txt cerca solo nella cartella corrente, ls -file cerca ovunque",
+        "ls -file è una sintassi non valida"
+      ],
+      "answer": 1,
+      "explain": "Get-ChildItem (ls) restituisce sia file sia directory. Il parametro -File limita l'output ai soli file. Se esistono cartelle con nome che termina in .txt, ls *.txt le include; ls -file *.txt no."
+    },
     {
       "id": "l2-01",
       "level": 2,
@@ -237,7 +287,52 @@
       "answer": 1,
       "explain": "Senza -ItemType Directory, New-Item crea un file."
     },
-
+    {
+      "id": "l2-11",
+      "level": 2,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Quale comando elenca tutti i file che hanno estensione .doc oppure .docx e che contengono la parola 'relazione' nel nome?",
+      "options": [
+        "ls *relazione*.doc, *relazione*.docx",
+        "ls relazione.doc, relazione.docx",
+        "ls *relazione*",
+        "ls -Include relazione.doc, relazione.docx"
+      ],
+      "answer": 0,
+      "explain": "Le wildcard * prima e dopo 'relazione' permettono di trovare nomi come 'relazione_finale.doc' o 'bozza_relazione.docx'. La virgola separa i due pattern."
+    },
+    {
+      "id": "l2-12",
+      "level": 2,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Dopo aver eseguito 1..3 | % { \"x\" * ($_ * 2) > \"n$_.txt\" }, quale file contiene più caratteri?",
+      "options": ["n1.txt", "n2.txt", "n3.txt", "Tutti uguali"],
+      "answer": 2,
+      "explain": "n1 contiene 2 x, n2 ne contiene 4, n3 ne contiene 6. Il numero di caratteri è $_ * 2, quindi cresce con $_."
+    },
+    {
+      "id": "l2-13",
+      "level": 2,
+      "topic": "Ordinamento",
+      "prompt": "Che cosa restituisce ls *.txt | sort Length -desc | select -first 1 ?",
+      "options": [
+        "Il file .txt più piccolo",
+        "Il file .txt più grande",
+        "Tutti i file .txt in ordine alfabetico",
+        "La somma delle dimensioni di tutti i .txt"
+      ],
+      "answer": 1,
+      "explain": "sort Length -desc ordina dal più grande al più piccolo; select -first 1 tiene il primo, cioè il più grande."
+    },
+    {
+      "id": "l2-14",
+      "level": 2,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Se nella cartella ci sono i file a.doc, b.docx, c.doc, d.docx, e esegui ls *.doc, *.docx | measure, quanti oggetti conta measure?",
+      "options": ["2", "3", "4", "5"],
+      "answer": 2,
+      "explain": "ls *.doc, *.docx restituisce a.doc, b.docx, c.doc, d.docx: 4 file. measure (Measure-Object) conterà 4 oggetti."
+    },
     {
       "id": "l3-01",
       "level": 3,
@@ -360,7 +455,57 @@
       "answer": 2,
       "explain": "Con $_ = 3 il file contiene 3 × 5 = 15 caratteri x (n6 ne contiene 30, n5 25, e così via)."
     },
-
+    {
+      "id": "l3-11",
+      "level": 3,
+      "topic": "Raggruppamento",
+      "prompt": "In una cartella ci sono 2 file .txt, 4 file .csv e 1 file .log. Che cosa mostra ls | group Extension | sort Count -desc ?",
+      "options": [
+        ".txt per primo, poi .csv, poi .log",
+        ".csv per primo, poi .txt, poi .log",
+        ".log per primo, poi .csv, poi .txt",
+        "Non è possibile raggruppare per Extension"
+      ],
+      "answer": 1,
+      "explain": "I gruppi hanno Count 4 (.csv), 2 (.txt), 1 (.log). sort Count -desc mette il Count più alto per primo: .csv (4), .txt (2), .log (1)."
+    },
+    {
+      "id": "l3-12",
+      "level": 3,
+      "topic": "Misure",
+      "prompt": "Una cartella contiene 3 file da 10 byte e 2 file da 20 byte. Che valore restituisce ls -file | measure Length -sum ?",
+      "options": ["50", "70", "100", "Non è possibile sommare Length"],
+      "answer": 1,
+      "explain": "Somma = (3 × 10) + (2 × 20) = 30 + 40 = 70 byte. Measure-Object -Sum somma tutti i valori della proprietà Length."
+    },
+    {
+      "id": "l3-13",
+      "level": 3,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Che cosa seleziona esattamente ls *.doc, *.docx | ? Length -gt 1KB ?",
+      "options": [
+        "Tutti i file .doc e .docx, senza distinzione di dimensione",
+        "Solo i file .doc e .docx più grandi di 1 KB",
+        "Solo i file .doc più grandi di 1 KB",
+        "Tutti i file più grandi di 1 KB, indipendentemente dall'estensione"
+      ],
+      "answer": 1,
+      "explain": "ls *.doc, *.docx produce l'elenco dei file con quelle due estensioni; ? Length -gt 1KB filtra quelli con Length maggiore di 1024 byte."
+    },
+    {
+      "id": "l3-14",
+      "level": 3,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Quale comando elenca i file .doc e .docx presenti anche nelle sottocartelle?",
+      "options": [
+        "ls *.doc, *.docx",
+        "ls -Recurse *.doc, *.docx",
+        "ls -file *.doc, *.docx",
+        "ls *.doc, *.docx -Depth 1"
+      ],
+      "answer": 1,
+      "explain": "-Recurse (o -r) fa scendere la ricerca in tutte le sottocartelle. Senza -Recurse, ls *.doc, *.docx si limita alla cartella corrente."
+    },
     {
       "id": "l4-01",
       "level": 4,
@@ -489,7 +634,62 @@
       "answer": 1,
       "explain": "$PSVersionTable.PSVersion distingue Windows PowerShell 5.1 da PowerShell 7 (utile perché cambia la codifica di >)."
     },
-
+    {
+      "id": "l4-11",
+      "level": 4,
+      "topic": "Sicurezza",
+      "prompt": "Esegui rm -r -WhatIf su una cartella che contiene 10 file. Che cosa succede?",
+      "options": [
+        "I 10 file vengono eliminati definitivamente",
+        "Viene mostrato che cosa sarebbe eliminato, ma nessun file viene rimosso",
+        "Viene creata una copia di backup dei 10 file",
+        "Il comando fallisce perché -WhatIf non è compatibile con -r"
+      ],
+      "answer": 1,
+      "explain": "-WhatIf simula l'operazione: elenca gli elementi che sarebbero eliminati senza eseguire realmente la rimozione. È il modo corretto di provare rm -r prima di lanciarlo senza -WhatIf."
+    },
+    {
+      "id": "l4-12",
+      "level": 4,
+      "topic": "Sicurezza",
+      "prompt": "Che cosa fa mv *.doc C:\\Backup -WhatIf ?",
+      "options": [
+        "Sposta davvero tutti i .doc in C:\\Backup",
+        "Mostra quali file .doc verrebbero spostati in C:\\Backup, senza spostarli",
+        "Copia i .doc in C:\\Backup",
+        "Elimina i .doc da C:\\Backup"
+      ],
+      "answer": 1,
+      "explain": "-WhatIf su Move-Item (mv) visualizza l'anteprima dell'operazione: indica quali file corrispondono al pattern *.doc e quale sarebbe la destinazione, ma non esegue alcuno spostamento."
+    },
+    {
+      "id": "l4-13",
+      "level": 4,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Che cosa cerca ls *.doc -Recurse ?",
+      "options": [
+        "Solo i file .doc nella cartella corrente",
+        "Tutti i file .doc nella cartella corrente e in tutte le sottocartelle",
+        "Tutti i file che contengono la parola doc, in qualsiasi cartella",
+        "Le cartelle chiamate *.doc"
+      ],
+      "answer": 1,
+      "explain": "-Recurse estende la ricerca in profondità: ls *.doc -Recurse trova i file con estensione .doc a qualsiasi livello sotto la cartella corrente."
+    },
+    {
+      "id": "l4-14",
+      "level": 4,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Quale comando elenca i file .doc e .docx che si trovano solo nella cartella corrente, senza scendere nelle sottocartelle?",
+      "options": [
+        "ls *.doc, *.docx",
+        "ls -Recurse *.doc, *.docx",
+        "ls -Depth 0 *.doc, *.docx",
+        "ls *.doc, *.docx -File"
+      ],
+      "answer": 0,
+      "explain": "Senza -Recurse, ls si ferma alla cartella corrente. ls *.doc, *.docx è quindi la forma più semplice per elencare entrambe le estensioni solo nel livello attuale."
+    },
     {
       "id": "l5-01",
       "level": 5,
@@ -628,7 +828,58 @@
         "Get-Alias ls"
       ],
       "answer": 0,
-      "explain": "Get-Member elenca proprietà e metodi dell'oggetto: è il modo per scoprire, per esempio, che esiste Length."
+      "explain": "Get-Member elenca proprietà e metodi dell'oggetto: è il modo per scoprire, per esempio, che i file hanno Length e le cartelle no."
+    },
+    {
+      "id": "l5-11",
+      "level": 5,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Perché ls -Include *.doc, *.docx senza -Recurse potrebbe non restituire i file attesi?",
+      "options": [
+        "Perché -Include funziona solo con -Recurse o con un percorso che contiene una wildcard",
+        "Perché -Include accetta un solo pattern",
+        "Perché *.doc, *.docx non è una sintassi valida per -Include",
+        "Perché -Include esclude automaticamente i file .doc"
+      ],
+      "answer": 0,
+      "explain": "-Include è pensato per filtrare i risultati di una ricerca ricorsiva o di un path con wildcard. Senza -Recurse (o senza wildcard nel path), tende a non produrre i risultati sperati. Per un elenco semplice nella cartella corrente è più affidabile ls *.doc, *.docx."
+    },
+    {
+      "id": "l5-12",
+      "level": 5,
+      "topic": "Codifica",
+      "prompt": "Se $PSVersionTable.PSVersion.Major vale 5, quale codifica usa l'operatore > per scrivere su file?",
+      "options": ["UTF-8", "UTF-16", "ASCII", "Dipende dal file system"],
+      "answer": 1,
+      "explain": "In Windows PowerShell 5.1 la redirezione > produce file UTF-16 (con BOM). In PowerShell 7 (Major 7) produce UTF-8. È un dettaglio importante quando si confrontano dimensioni o si leggono i file con altri strumenti."
+    },
+    {
+      "id": "l5-13",
+      "level": 5,
+      "topic": "Ricerca con wildcard",
+      "prompt": "Quale comando è equivalente a ls *.doc, *.docx ?",
+      "options": [
+        "ls | ? { $_.Extension -in '.doc', '.docx' }",
+        "ls | ? Extension -eq '.doc' -or Extension -eq '.docx'",
+        "ls -Include *.doc, *.docx",
+        "Tutte le precedenti, con le dovute differenze di contesto"
+      ],
+      "answer": 3,
+      "explain": "Sia il filtro con Where-Object (?) sia -Include possono ottenere un risultato simile, ma in contesti leggermente diversi. La forma più diretta e sicura nella cartella corrente resta ls *.doc, *.docx. Le altre opzioni funzionano ma richiedono attenzione (per esempio -Include senza -Recurse)."
+    },
+    {
+      "id": "l5-14",
+      "level": 5,
+      "topic": "Raggruppamento",
+      "prompt": "Esegui ls *.doc, *.docx | group Extension | sort Count -desc. Che cosa rappresenta Name nell'output?",
+      "options": [
+        "Il nome del file più grande di quel gruppo",
+        "L'estensione (con il punto) che identifica il gruppo",
+        "Il numero di file con quella estensione",
+        "La dimensione totale dei file di quel gruppo"
+      ],
+      "answer": 1,
+      "explain": "Group-Object raggruppa per il valore della proprietà Extension: Name è il valore distinto (es. .doc, .docx), Count è il numero di file, Group è l'elenco dei file."
     }
   ]
 }
